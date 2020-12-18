@@ -25,6 +25,18 @@ const (
 	CurrentAPIVersion      = APIVersionBeta
 	APIVersionGroup        = "hco.kubevirt.io"
 	APIVersion             = APIVersionGroup + "/" + APIVersionBeta
+	// Recommended labels by Kubernetes. See
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+	AppLabelPrefix    = "app.kubernetes.io"
+	AppVersionLabel   = AppLabelPrefix + "/version"
+	AppManagedByLabel = AppLabelPrefix + "/managed-by"
+	AppPartOfLabel    = AppLabelPrefix + "/part-of"
+	AppComponentLabel = AppLabelPrefix + "/component"
+	// Operator name for managed-by label
+	OperatorName = "hco-operator"
+	// Value for "part-of" label
+	HyperConvergedCluster = "hyperconverged-cluster"
+
 	// HyperConvergedName is the name of the HyperConverged resource that will be reconciled
 	HyperConvergedName          = "kubevirt-hyperconverged"
 	MetricsHost                 = "0.0.0.0"
@@ -37,4 +49,15 @@ const (
 	HCOWebhookPath              = "/validate-hco-kubevirt-io-v1beta1-hyperconverged"
 	HCONSWebhookPath            = "/mutate-ns-hco-kubevirt-io"
 	WebhookPort                 = 4343
+)
+
+type AppComponent string
+
+const (
+	ComputeComponent  AppComponent = "compute"
+	StorageComponent               = "storage"
+	ImportComponent                = "import"
+	NetworkComponent               = "network"
+	MonitorComponent               = "monitor"
+	ScheduleComponent              = "schedule"
 )

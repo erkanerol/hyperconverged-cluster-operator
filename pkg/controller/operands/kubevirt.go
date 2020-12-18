@@ -8,6 +8,7 @@ import (
 
 	hcov1beta1 "github.com/kubevirt/hyperconverged-cluster-operator/pkg/apis/hco/v1beta1"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
+	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -63,12 +64,14 @@ func (h *kubevirtHooks) updateCr(req *common.HcoRequest, Client client.Client, e
 	if !ok1 || !ok2 {
 		return false, false, errors.New("can't convert to KubeVirt")
 	}
-	if !reflect.DeepEqual(found.Spec, virt.Spec) {
+	if !reflect.DeepEqual(found.Spec, virt.Spec) ||
+		!reflect.DeepEqual(found.Labels, virt.Labels) {
 		if req.HCOTriggered {
 			req.Logger.Info("Updating existing KubeVirt's Spec to new opinionated values")
 		} else {
 			req.Logger.Info("Reconciling an externally updated KubeVirt's Spec to its opinionated values")
 		}
+		util.DeepCopyLabels(&virt.ObjectMeta, &found.ObjectMeta)
 		virt.Spec.DeepCopyInto(&found.Spec)
 		err := Client.Update(req.Ctx, found)
 		if err != nil {
@@ -99,7 +102,7 @@ func NewKubeVirt(hc *hcov1beta1.HyperConverged, opts ...string) *kubevirtv1.Kube
 	return &kubevirtv1.KubeVirt{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kubevirt-" + hc.Name,
-			Labels:    getLabels(hc),
+			Labels:    getLabels(hc, hcoutil.ComputeComponent),
 			Namespace: getNamespace(hc.Namespace, opts),
 		},
 		Spec: spec,
@@ -170,8 +173,8 @@ func (h *kvConfigHooks) updateCr(req *common.HcoRequest, Client client.Client, e
 		return false, false, errors.New("can't convert to ConfigMap")
 	}
 
+	changed := false
 	if req.UpgradeMode {
-		changed := false
 		// only virtconfig.SmbiosConfigKey, virtconfig.MachineTypeKey, virtconfig.SELinuxLauncherTypeKey,
 		// virtconfig.FeatureGatesKey and virtconfig.UseEmulationKey are going to be manipulated
 		// and only on HCO upgrades.
@@ -200,15 +203,20 @@ func (h *kvConfigHooks) updateCr(req *common.HcoRequest, Client client.Client, e
 				changed = true
 			}
 		}
+	}
 
-		if changed {
-			err := Client.Update(req.Ctx, found)
-			if err != nil {
-				req.Logger.Error(err, "Failed updating the kubevirt config map")
-				return false, false, err
-			}
-			return true, false, nil
+	if !reflect.DeepEqual(found.Labels, kubevirtConfig.Labels) {
+		util.DeepCopyLabels(&kubevirtConfig.ObjectMeta, &found.ObjectMeta)
+		changed = true
+	}
+
+	if changed {
+		err := Client.Update(req.Ctx, found)
+		if err != nil {
+			req.Logger.Error(err, "Failed updating the kubevirt config map")
+			return false, false, err
 		}
+		return true, false, nil
 	}
 	return false, false, nil
 }
@@ -250,7 +258,8 @@ func (h *kvPriorityClassHooks) updateCr(req *common.HcoRequest, Client client.Cl
 	}
 
 	// at this point we found the object in the cache and we check if something was changed
-	if (pc.Name == found.Name) && (pc.Value == found.Value) && (pc.Description == found.Description) {
+	if (pc.Name == found.Name) && (pc.Value == found.Value) &&
+		(pc.Description == found.Description) && reflect.DeepEqual(pc.Labels, found.Labels) {
 		return false, false, nil
 	}
 
@@ -283,7 +292,7 @@ func NewKubeVirtPriorityClass(hc *hcov1beta1.HyperConverged) *schedulingv1.Prior
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "kubevirt-cluster-critical",
-			Labels: getLabels(hc),
+			Labels: getLabels(hc, hcoutil.ComputeComponent),
 		},
 		// 1 billion is the highest value we can set
 		// https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -311,13 +320,10 @@ func translateKubeVirtConds(orig []kubevirtv1.KubeVirtCondition) []conditionsv1.
 }
 
 func NewKubeVirtConfigForCR(cr *hcov1beta1.HyperConverged, namespace string) *corev1.ConfigMap {
-	labels := map[string]string{
-		hcoutil.AppLabel: cr.Name,
-	}
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kubevirt-config",
-			Labels:    labels,
+			Labels:    getLabels(cr, hcoutil.ComputeComponent),
 			Namespace: namespace,
 		},
 		// only virtconfig.SmbiosConfigKey, virtconfig.MachineTypeKey, virtconfig.SELinuxLauncherTypeKey,

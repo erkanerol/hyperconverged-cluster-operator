@@ -686,16 +686,22 @@ var _ = Describe("HyperconvergedController", func() {
 		})
 
 		Context("Upgrade Mode", func() {
-			expected := getBasicDeployment()
-			origConditions := expected.hco.Status.Conditions
-			okConds := expected.hco.Status.Conditions
-
 			const (
 				oldVersion          = "1.2.0"
 				newVersion          = "1.3.0" // TODO: avoid hard-coding values
 				oldComponentVersion = "1.3.0"
 				newComponentVersion = "1.3.3"
 			)
+
+			// this is used for version label and the tests below
+			// assumes there is no change in labels. Therefore, it should be
+			// set before getBasicDeployment so that the existing resource can
+			// have the correct labels
+			os.Setenv(hcoutil.HcoKvIoVersionName, newVersion)
+
+			expected := getBasicDeployment()
+			origConditions := expected.hco.Status.Conditions
+			okConds := expected.hco.Status.Conditions
 
 			BeforeEach(func() {
 				os.Setenv("CONVERSION_CONTAINER", commonTestUtils.Conversion_image)
@@ -719,8 +725,6 @@ var _ = Describe("HyperconvergedController", func() {
 				expected.kvNlb.Status.ObservedVersion = newComponentVersion
 				expected.kvTv.Status.ObservedVersion = newComponentVersion
 				expected.kvMtAg.Status.ObservedVersion = newComponentVersion
-
-				os.Setenv(hcoutil.HcoKvIoVersionName, newVersion)
 
 				expected.hco.Status.Conditions = origConditions
 			})
