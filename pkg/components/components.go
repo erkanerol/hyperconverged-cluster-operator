@@ -54,7 +54,7 @@ func GetDeploymentOperator(namespace, image, imagePullPolicy, conversionContaine
 	}
 }
 
-func GetDeploymentWebhook(namespace, image, imagePullPolicy string, env []corev1.EnvVar) appsv1.Deployment {
+func GetDeploymentWebhook(namespace, image, imagePullPolicy, hcoKvIoVersion string, env []corev1.EnvVar) appsv1.Deployment {
 	return appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "apps/v1",
@@ -66,7 +66,7 @@ func GetDeploymentWebhook(namespace, image, imagePullPolicy string, env []corev1
 				"name": hcoNameWebhook,
 			},
 		},
-		Spec: GetDeploymentSpecWebhook(namespace, image, imagePullPolicy, env),
+		Spec: GetDeploymentSpecWebhook(namespace, image, imagePullPolicy, hcoKvIoVersion, env),
 	}
 }
 
@@ -84,7 +84,10 @@ func GetDeploymentSpecOperator(namespace, image, imagePullPolicy, conversionCont
 		Template: corev1.PodTemplateSpec{
 			ObjectMeta: metav1.ObjectMeta{
 				Labels: map[string]string{
-					"name": hcoName,
+					"name":                    hcoName,
+					hcoutil.AppVersionLabel:   hcoKvIoVersion,
+					hcoutil.AppPartOfLabel:    hcoutil.HyperConvergedCluster,
+					hcoutil.AppComponentLabel: string(hcoutil.DeploymentComponent),
 				},
 			},
 			Spec: corev1.PodSpec{
@@ -235,7 +238,7 @@ func GetDeploymentSpecOperator(namespace, image, imagePullPolicy, conversionCont
 // A deeper code refactor to produce two distinct binaries is not worth now because we are going to
 // use OLM operator conditions soon.
 // TODO: remove this once we will move to OLM operator conditions
-func GetDeploymentSpecWebhook(namespace, image, imagePullPolicy string, env []corev1.EnvVar) appsv1.DeploymentSpec {
+func GetDeploymentSpecWebhook(namespace, image, imagePullPolicy, hcoKvIoVersion string, env []corev1.EnvVar) appsv1.DeploymentSpec {
 	return appsv1.DeploymentSpec{
 		Replicas: int32Ptr(1),
 		Selector: &metav1.LabelSelector{
@@ -249,7 +252,10 @@ func GetDeploymentSpecWebhook(namespace, image, imagePullPolicy string, env []co
 		Template: corev1.PodTemplateSpec{
 			ObjectMeta: metav1.ObjectMeta{
 				Labels: map[string]string{
-					"name": hcoNameWebhook,
+					"name":                    hcoNameWebhook,
+					hcoutil.AppVersionLabel:   hcoKvIoVersion,
+					hcoutil.AppPartOfLabel:    hcoutil.HyperConvergedCluster,
+					hcoutil.AppComponentLabel: string(hcoutil.DeploymentComponent),
 				},
 			},
 			Spec: corev1.PodSpec{
@@ -902,7 +908,7 @@ func GetInstallStrategyBase(namespace, image, webhookImage, imagePullPolicy, con
 			},
 			csvv1alpha1.StrategyDeploymentSpec{
 				Name: hcoWhDeploymentName,
-				Spec: GetDeploymentSpecWebhook(namespace, webhookImage, imagePullPolicy, env),
+				Spec: GetDeploymentSpecWebhook(namespace, webhookImage, imagePullPolicy, hcoKvIoVersion, env),
 			},
 		},
 		Permissions: []csvv1alpha1.StrategyDeploymentPermissions{},

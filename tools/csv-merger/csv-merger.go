@@ -24,6 +24,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	"io/ioutil"
 	"log"
 	"os"
@@ -82,6 +83,12 @@ func (i *EnvVarFlags) Set(value string) error {
 		Value: kv[1],
 	})
 	return nil
+}
+
+type component struct {
+	csv          string
+	version      string
+	appComponent hcoutil.AppComponent
 }
 
 var (
@@ -255,14 +262,41 @@ func main() {
 			panic(errors.New("Must specify spec-displayname and spec-description"))
 		}
 
-		csvs := []string{
-			*cnaCsv,
-			*virtCsv,
-			*sspCsv,
-			*cdiCsv,
-			*nmoCsv,
-			*hppCsv,
-			*vmImportCsv,
+		componentsWithCsvs := []component{
+			{
+				csv:          *cnaCsv,
+				version:      *cnaoVersion,
+				appComponent: hcoutil.NetworkComponent,
+			},
+			{
+				csv:          *virtCsv,
+				version:      *kubevirtVersion,
+				appComponent: hcoutil.ComputeComponent,
+			},
+			{
+				csv:          *sspCsv,
+				version:      *sspVersion,
+				appComponent: hcoutil.ScheduleComponent,
+			},
+			{
+				csv:          *cdiCsv,
+				version:      *cdiVersion,
+				appComponent: hcoutil.StorageComponent,
+			},
+			{
+				csv:          *nmoCsv,
+				version:      *nmoVersion,
+				appComponent: hcoutil.NetworkComponent,
+			},
+			{
+				csv:          *hppCsv,
+				version:      *hppoVersion,
+				appComponent: hcoutil.StorageComponent,
+			},
+			{
+				csv:          *vmImportCsv,
+				version:      *vmImportVersion,
+				appComponent: hcoutil.ImportComponent},
 		}
 
 		version := semver.MustParse(*csvVersion)
@@ -309,6 +343,10 @@ func main() {
 			envVars,
 		)
 
+		for i, _ := range installStrategyBase.DeploymentSpecs {
+			overwriteWithStandardLabels(installStrategyBase.DeploymentSpecs[i].Spec.Template.Labels, *hcoKvIoVersion, hcoutil.DeploymentComponent)
+		}
+
 		relatedImageSet := newRelatedImageSet()
 
 		for _, image := range strings.Split(*relatedImagesList, ",") {
@@ -317,12 +355,12 @@ func main() {
 			}
 		}
 
-		for i, csvStr := range csvs {
-			if csvStr == "" {
+		for i, c := range componentsWithCsvs {
+			if c.csv == "" {
 				csvNames := []string{"CNA", "KubeVirt", "SSP", "CDI", "NMO", "HPP", "VM Import"}
 				log.Panicf("ERROR: the %s CSV was empty", csvNames[i])
 			}
-			csvBytes := []byte(csvStr)
+			csvBytes := []byte(c.csv)
 
 			csvStruct := &ClusterServiceVersionExtended{}
 
@@ -340,7 +378,12 @@ func main() {
 				delete(deployment.Spec.Template.Annotations, "description")
 			}
 
+			for i, _ := range strategySpec.DeploymentSpecs {
+				overwriteWithStandardLabels(strategySpec.DeploymentSpecs[i].Spec.Template.Labels, c.version, c.appComponent)
+			}
+
 			installStrategyBase.DeploymentSpecs = append(installStrategyBase.DeploymentSpecs, strategySpec.DeploymentSpecs...)
+
 			installStrategyBase.ClusterPermissions = append(installStrategyBase.ClusterPermissions, strategySpec.ClusterPermissions...)
 			installStrategyBase.Permissions = append(installStrategyBase.Permissions, strategySpec.Permissions...)
 
@@ -452,6 +495,20 @@ func main() {
 
 	default:
 		panic("Unsupported output mode: " + *outputMode)
+	}
+
+}
+
+func overwriteWithStandardLabels(labels map[string]string, version string, component hcoutil.AppComponent) {
+	appendedLabels := map[string]string{
+		hcoutil.AppManagedByLabel: "olm",
+		hcoutil.AppVersionLabel:   version,
+		hcoutil.AppPartOfLabel:    hcoutil.HyperConvergedCluster,
+		hcoutil.AppComponentLabel: string(component),
+	}
+
+	for k, v := range appendedLabels {
+		labels[k] = v
 	}
 
 }

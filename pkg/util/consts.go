@@ -54,10 +54,11 @@ const (
 type AppComponent string
 
 const (
-	ComputeComponent  AppComponent = "compute"
-	StorageComponent               = "storage"
-	ImportComponent                = "import"
-	NetworkComponent               = "network"
-	MonitorComponent               = "monitor"
-	ScheduleComponent              = "schedule"
+	ComputeComponent    AppComponent = "compute"
+	StorageComponent                 = "storage"
+	ImportComponent                  = "import"
+	NetworkComponent                 = "network"
+	MonitorComponent                 = "monitor"
+	ScheduleComponent                = "schedule"
+	DeploymentComponent              = "deployment"
 )

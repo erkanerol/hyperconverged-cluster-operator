@@ -1706,6 +1706,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: deployment
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: 1.3.0
                 name: hyperconverged-cluster-operator
             spec:
               containers:
@@ -1786,6 +1790,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: deployment
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: 1.3.0
                 name: hyperconverged-cluster-webhook
             spec:
               containers:
@@ -1839,6 +1847,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: network
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v0.43.0
                 name: cluster-network-addons-operator
             spec:
               containers:
@@ -1898,6 +1910,10 @@ spec:
               annotations:
                 scheduler.alpha.kubernetes.io/critical-pod: ""
               labels:
+                app.kubernetes.io/component: compute
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v0.36.0
                 kubevirt.io: virt-operator
                 prometheus.kubevirt.io: ""
               name: virt-operator
@@ -1982,6 +1998,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: schedule
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v1.2.1
                 name: kubevirt-ssp-operator
             spec:
               containers:
@@ -2022,6 +2042,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: storage
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v1.27.0
                 name: cdi-operator
                 operator.cdi.kubevirt.io: ""
             spec:
@@ -2073,6 +2097,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: network
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v0.7.0
                 name: node-maintenance-operator
             spec:
               affinity:
@@ -2113,6 +2141,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: storage
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v0.6.0
                 name: hostpath-provisioner-operator
                 operator.hostpath-provisioner.kubevirt.io: ""
             spec:
@@ -2148,6 +2180,10 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/component: import
+                app.kubernetes.io/managed-by: olm
+                app.kubernetes.io/part-of: hyperconverged-cluster
+                app.kubernetes.io/version: v0.2.5
                 name: vm-import-operator
                 operator.v2v.kubevirt.io: ""
             spec:
