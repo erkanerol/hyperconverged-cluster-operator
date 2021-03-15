@@ -21,13 +21,13 @@ import (
 
 var _ = Describe("Test operandHandler", func() {
 	Context("Test operandHandler", func() {
-		testFileLocation := getTestFilesLocation()
+		quickStartTestFileLocation := getTestFilesLocation() + "/quickstarts"
 
 		_ = os.Setenv("CONVERSION_CONTAINER", "just-a-value:version")
 		_ = os.Setenv("VMWARE_CONTAINER", "just-a-value:version")
 
 		It("should create all objects are created", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
@@ -162,7 +162,7 @@ var _ = Describe("Test operandHandler", func() {
 		})
 
 		It("should handle errors on ensure loop", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
@@ -206,7 +206,7 @@ var _ = Describe("Test operandHandler", func() {
 		})
 
 		It("make sure the all objects are deleted", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
@@ -309,7 +309,7 @@ var _ = Describe("Test operandHandler", func() {
 		})
 
 		It("delete KV error handling", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
@@ -361,7 +361,7 @@ var _ = Describe("Test operandHandler", func() {
 		})
 
 		It("delete CDI error handling", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
@@ -413,7 +413,7 @@ var _ = Describe("Test operandHandler", func() {
 		})
 
 		It("default delete error handling", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
@@ -466,7 +466,7 @@ var _ = Describe("Test operandHandler", func() {
 		})
 
 		It("delete timeout error handling", func() {
-			err := os.Setenv(manifestLocationVarName, testFileLocation)
+			err := os.Setenv(quickStartManifestLocationVarName, quickStartTestFileLocation)
 			Expect(err).ToNot(HaveOccurred())
 			hco := commonTestUtils.NewHco()
 			cli := commonTestUtils.InitClient([]runtime.Object{qsCrd, hco})
