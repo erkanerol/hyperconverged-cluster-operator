@@ -1,7 +1,5 @@
 name: Update Dashboard ConfigMaps
-on:
-  schedule:
-    - cron:  '0 5 * * *'
+on: workflow_dispatch
 jobs:
   build:
     name: Update Dashboard ConfigMaps
