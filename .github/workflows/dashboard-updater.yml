@@ -21,4 +21,25 @@ jobs:
 
       - name: Check for update
         run: |
-          ls -la
+          ./hco/automation/dashboard-updater/dashboard-updater.sh "./monitoring/dashboards" "./hco/deploy/dashbords"
+
+      - name: Create a PR
+        uses: peter-evans/create-pull-request@v3
+        if: ${{ env.UPDATED }}
+        with:
+          token: ${{ secrets.HCO_BOT_TOKEN }}
+          commit-message: |
+            Update configmaps of dashboards
+
+            Signed-off-by: HCO Bump Bot <noreply@github.com>
+          committer: HCO Bump Bot <noreply@github.com>
+          title: "Update configmaps of dashboards"
+          body: |
+            Update configmaps of dashboards
+            ```release-note
+            Update configmaps of dashboards
+            ```
+          assignees: erkanerol
+          reviewers: erkanerol
+          team-reviewers: owners, maintainers
+          branch: update_configmap
