@@ -27,6 +27,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         if: ${{ env.UPDATED }}
         with:
+          path: hco
           token: ${{ secrets.HCO_BOT_TOKEN }}
           commit-message: |
             Update configmaps of dashboards
