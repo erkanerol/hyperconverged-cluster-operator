@@ -17,9 +17,10 @@ if [ "${JOB_TYPE}" == "travis" ]; then
     KUBEVIRT_CLIENT_GO_SCHEME_REGISTRATION_VERSION=v1 ginkgo -r -covermode atomic -outputdir=./coverprofiles -coverprofile=cover.coverprofile ${PACKAGE_PATH}
 else
     test_path="tests/func-tests"
-    (cd $test_path; GOFLAGS= go get github.com/onsi/ginkgo/ginkgo)
-    (cd $test_path; GOFLAGS= go get github.com/onsi/gomega)
-    (cd $test_path; go mod  tidy; go mod vendor)
+    # commented to be able to edit vendored files
+    # (cd $test_path; GOFLAGS= go get github.com/onsi/ginkgo/ginkgo)
+    # (cd $test_path; GOFLAGS= go get github.com/onsi/gomega)
+    # (cd $test_path; go mod  tidy; go mod vendor)
     test_out_path=${test_path}/_out
     mkdir -p ${test_out_path}
     (cd $test_path; ginkgo build .)

@@ -65,6 +65,10 @@ func Init() {
 	}
 }
 
+func SetKubeConfig(config string){
+	kubeconfig = config
+}
+
 func FlagSet() *flag.FlagSet {
 	set := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	set.StringVar(&kubeconfig, "kubeconfig", "", "absolute path to the kubeconfig file")
