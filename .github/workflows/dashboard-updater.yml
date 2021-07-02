@@ -43,4 +43,4 @@ jobs:
           assignees: erkanerol
           reviewers: erkanerol
           team-reviewers: owners, maintainers
-          branch: update_configmap
+          branch: update_dashboard_configmaps
