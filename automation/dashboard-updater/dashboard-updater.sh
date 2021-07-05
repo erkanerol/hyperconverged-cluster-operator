@@ -29,8 +29,10 @@ export KUBECONFIG=/tmp/fake-config
 json_files_dir="$1"
 configmaps_files_dir="$2"
 
-tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
-echo "Generating configmaps for dashboards. tmp_dir: $tmp_dir"
+rm -Rf "$configmaps_files_dir"
+mkdir -p "$configmaps_files_dir"
+
+echo "Generating configmaps for dashboards"
 
 for file in "${json_files_dir}"/*.json; do
     echo "Generating configmap for $file"
@@ -44,17 +46,5 @@ for file in "${json_files_dir}"/*.json; do
       --from-file="$file_name=$file" | \
     kubectl label -f - --dry-run=client  -o yaml \
       --local 'console.openshift.io/dashboard=true' | \
-    grep -v "creationTimestamp" > "${tmp_dir}/${configmap_name}.yaml"
+    grep -v "creationTimestamp" > "${configmaps_files_dir}/${configmap_name}.yaml"
 done
-
-echo "Checking diff"
-
-if diff "$tmp_dir" "$configmaps_files_dir"; then
-  echo "There is no update!"
-else
-  echo "There is an update. Updating the directory..."
-  rm -Rf "$configmaps_files_dir"
-  mkdir -p "$configmaps_files_dir"
-  cp -r "$tmp_dir/." "$configmaps_files_dir"
-  echo "UPDATED=true" >> $GITHUB_ENV
-fi
