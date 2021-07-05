@@ -5,7 +5,7 @@ data:
       "annotations": {
         "list": [
           {
-            "builtIn": 1,
+            "builtIn": 2,
             "datasource": "-- Grafana --",
             "enable": true,
             "hide": true,
